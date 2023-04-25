@@ -21,13 +21,15 @@
       compareBtn.addEventListener("click", async () => {
         const todayData = await readFile(todayFile.files[0]);
         const yesterdayData = await readFile(yesterdayFile.files[0]);
-        const todayListings = getListingIDs(todayData);
-        const yesterdayListings = getListingIDs(yesterdayData);
+        const todayListings = getMatchingListings(todayData);
+        const yesterdayListings = getMatchingListings(yesterdayData);
         const newProperties = getNewListings(todayListings, yesterdayListings);
         const removedProperties = getNewListings(yesterdayListings, todayListings);
-        const totalListings = todayListings.length;
+        const todayCount = todayListings.length;
+        const yesterdayCount = yesterdayListings.length;
         resultDiv.innerHTML = `
-          <p>Number of Listings: ${totalListings}</p>
+          <p>Today's Listings Count: ${todayCount}</p>
+          <p>Yesterday's Listings Count: ${yesterdayCount}</p>
           <p>New Properties:</p>
           <ul>
             ${newProperties.map((property) => `<li>${property}</li>`).join("")}
@@ -54,8 +56,8 @@
         });
       }
 
-      function getListingIDs(data) {
-        return data.map((row) => row["Listing ID"]);
+      function getMatchingListings(data) {
+        return data.map((row) => row[3]);
       }
 
       function getNewListings(listings1, listings2) {
