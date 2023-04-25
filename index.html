@@ -19,30 +19,29 @@
       const resultDiv = document.getElementById("result");
 
       compareBtn.addEventListener("click", async () => {
-        const todayData = await readFile(todayFile.files[0]);
-        const yesterdayData = await readFile(yesterdayFile.files[0]);
-        const todayListings = getUniqueListings(todayData);
-        const yesterdayListings = getUniqueListings(yesterdayData);
-        const newProperties = getNewListings(todayListings, yesterdayListings);
-        const removedProperties = getNewListings(yesterdayListings, todayListings);
-        const todayPropertyCount = todayListings.length;
-        const yesterdayPropertyCount = yesterdayListings.length;
-        const todayRentAverage = getRentAverage(todayData);
-        const yesterdayRentAverage = getRentAverage(yesterdayData);
-        resultDiv.innerHTML = `
-          <p>Number of Properties Today: ${todayPropertyCount}</p>
-          <p>Number of Properties Yesterday: ${yesterdayPropertyCount}</p>
-          <p>New Properties:</p>
-          <ul>
-            ${newProperties.map((property) => `<li>${property.unitId} - ${property.address} ${property.unitNumber}</li>`).join("")}
-          </ul>
-          <p>Removed Properties:</p>
-          <ul>
-            ${removedProperties.map((property) => `<li>${property.unitId} - ${property.address} ${property.unitNumber}</li>`).join("")}
-          </ul>
-          <p>Rent Average Today: $${todayRentAverage}</p>
-          <p>Rent Average Yesterday: $${yesterdayRentAverage}</p>
-        `;
+        if (!todayFile.files[0] || !yesterdayFile.files[0]) {
+          resultDiv.innerHTML = "<p>Please select both today's and yesterday's files</p>";
+          return;
+        }
+
+        try {
+          const todayData = await readFile(todayFile.files[0]);
+          const yesterdayData = await readFile(yesterdayFile.files[0]);
+          const todayListings = getMatchingListings(todayData);
+          const yesterdayListings = getMatchingListings(yesterdayData);
+          const newProperties = getNewListings(todayListings, yesterdayListings);
+          const removedProperties = getNewListings(yesterdayListings, todayListings);
+          const totalPropertiesToday = todayListings.length;
+          const totalPropertiesYesterday = yesterdayListings.length;
+          resultDiv.innerHTML = `
+            <p>Total Properties Today: ${totalPropertiesToday}</p>
+            <p>Total Properties Yesterday: ${totalPropertiesYesterday}</p>
+            <p>New Properties: ${newProperties.length}</p>
+            <p>Removed Properties: ${removedProperties.length}</p>
+          `;
+        } catch (err) {
+          resultDiv.innerHTML = `<p>There was an error: ${err.message}</p>`;
+        }
       });
 
       function readFile(file) {
@@ -56,23 +55,20 @@
             const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true });
             resolve(jsonData);
           };
+          reader.onerror = (event) => {
+            reject(event.error);
+          };
           reader.readAsArrayBuffer(file);
         });
       }
 
-      function getUniqueListings(data) {
-        return data.reduce((acc, row) => {
-          const existingProperty = acc.find((property) => property.unitId === row[2]);
-          if (!existingProperty) {
-            acc.push({
-              unitId: row[2],
-              address: row[7],
-              unitNumber: row[8],
-            });
-          }
-          return acc;
-        }, []);
+      function getMatchingListings(data) {
+        return data.map((row) => row["Unit ID"]);
       }
 
       function getNewListings(listings1, listings2) {
-        return listings
+        return listings1.filter((listing) => !listings2.includes(listing));
+      }
+    </script>
+  </body>
+</html>
