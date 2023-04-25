@@ -25,11 +25,15 @@
         const yesterdayListings = getMatchingListings(yesterdayData);
         const newProperties = getNewListings(todayListings, yesterdayListings);
         const removedProperties = getNewListings(yesterdayListings, todayListings);
-        const todayCount = todayListings.length;
-        const yesterdayCount = yesterdayListings.length;
         resultDiv.innerHTML = `
-          <p>Today's Listings Count: ${todayCount}</p>
-          <p>Yesterday's Listings Count: ${yesterdayCount}</p>
+          <p>Today's Properties:</p>
+          <ul>
+            ${todayListings.map((property) => `<li>${property}</li>`).join("")}
+          </ul>
+          <p>Yesterday's Properties:</p>
+          <ul>
+            ${yesterdayListings.map((property) => `<li>${property}</li>`).join("")}
+          </ul>
           <p>New Properties:</p>
           <ul>
             ${newProperties.map((property) => `<li>${property}</li>`).join("")}
@@ -57,7 +61,7 @@
       }
 
       function getMatchingListings(data) {
-        return data.map((row) => row[3]);
+        return data.map((row) => row["Unit ID"]);
       }
 
       function getNewListings(listings1, listings2) {
