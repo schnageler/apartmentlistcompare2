@@ -21,27 +21,27 @@
       compareBtn.addEventListener("click", async () => {
         const todayData = await readFile(todayFile.files[0]);
         const yesterdayData = await readFile(yesterdayFile.files[0]);
-        const todayListings = getMatchingListings(todayData);
-        const yesterdayListings = getMatchingListings(yesterdayData);
+        const todayListings = getUniqueListings(todayData);
+        const yesterdayListings = getUniqueListings(yesterdayData);
         const newProperties = getNewListings(todayListings, yesterdayListings);
         const removedProperties = getNewListings(yesterdayListings, todayListings);
+        const todayPropertyCount = todayListings.length;
+        const yesterdayPropertyCount = yesterdayListings.length;
+        const todayRentAverage = getRentAverage(todayData);
+        const yesterdayRentAverage = getRentAverage(yesterdayData);
         resultDiv.innerHTML = `
-          <p>Today's Properties:</p>
-          <ul>
-            ${todayListings.map((property) => `<li>${property}</li>`).join("")}
-          </ul>
-          <p>Yesterday's Properties:</p>
-          <ul>
-            ${yesterdayListings.map((property) => `<li>${property}</li>`).join("")}
-          </ul>
+          <p>Number of Properties Today: ${todayPropertyCount}</p>
+          <p>Number of Properties Yesterday: ${yesterdayPropertyCount}</p>
           <p>New Properties:</p>
           <ul>
-            ${newProperties.map((property) => `<li>${property}</li>`).join("")}
+            ${newProperties.map((property) => `<li>${property.unitId} - ${property.address} ${property.unitNumber}</li>`).join("")}
           </ul>
           <p>Removed Properties:</p>
           <ul>
-            ${removedProperties.map((property) => `<li>${property}</li>`).join("")}
+            ${removedProperties.map((property) => `<li>${property.unitId} - ${property.address} ${property.unitNumber}</li>`).join("")}
           </ul>
+          <p>Rent Average Today: $${todayRentAverage}</p>
+          <p>Rent Average Yesterday: $${yesterdayRentAverage}</p>
         `;
       });
 
@@ -60,13 +60,19 @@
         });
       }
 
-      function getMatchingListings(data) {
-        return data.map((row) => row["Unit ID"]);
+      function getUniqueListings(data) {
+        return data.reduce((acc, row) => {
+          const existingProperty = acc.find((property) => property.unitId === row[2]);
+          if (!existingProperty) {
+            acc.push({
+              unitId: row[2],
+              address: row[7],
+              unitNumber: row[8],
+            });
+          }
+          return acc;
+        }, []);
       }
 
       function getNewListings(listings1, listings2) {
-        return listings1.filter((listing) => !listings2.includes(listing));
-      }
-    </script>
-  </body>
-</html>
+        return listings
