@@ -10,7 +10,7 @@
     <input type="file" id="today-file" accept=".xlsx" /><br />
     <label for="yesterday-file">Choose Yesterday's file:</label>
     <input type="file" id="yesterday-file" accept=".xlsx" /><br />
-    <label for="property-id">Property ID:</label>
+    <label for="property-id">Unit ID:</label>
     <input type="text" id="property-id" /><br />
     <button id="compare-btn">Compare Listings</button>
     <div id="result"></div>
@@ -56,7 +56,7 @@
       }
 
       function getMatchingListings(data, propertyId) {
-        return data.filter((row) => row["Property ID"] === propertyId).map((row) => row["Listing ID"]);
+        return data.filter((row) => row["Unit ID"] === propertyId).map((row) => row["Listing ID"]);
       }
 
       function getNewListings(listings1, listings2) {
