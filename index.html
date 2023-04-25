@@ -19,11 +19,6 @@
       const resultDiv = document.getElementById("result");
 
       compareBtn.addEventListener("click", async () => {
-        if (!todayFile.files[0] || !yesterdayFile.files[0]) {
-          resultDiv.innerHTML = "<p>Please select both today's and yesterday's files</p>";
-          return;
-        }
-
         try {
           const todayData = await readFile(todayFile.files[0]);
           const yesterdayData = await readFile(yesterdayFile.files[0]);
@@ -33,14 +28,19 @@
           const removedProperties = getNewListings(yesterdayListings, todayListings);
           const totalPropertiesToday = todayListings.length;
           const totalPropertiesYesterday = yesterdayListings.length;
+          const averageRentToday = getAverageRent(todayData);
+          const averageRentYesterday = getAverageRent(yesterdayData);
           resultDiv.innerHTML = `
             <p>Total Properties Today: ${totalPropertiesToday}</p>
             <p>Total Properties Yesterday: ${totalPropertiesYesterday}</p>
+            <p>Average Rent Today: ${averageRentToday}</p>
+            <p>Average Rent Yesterday: ${averageRentYesterday}</p>
             <p>New Properties: ${newProperties.length}</p>
             <p>Removed Properties: ${removedProperties.length}</p>
           `;
-        } catch (err) {
-          resultDiv.innerHTML = `<p>There was an error: ${err.message}</p>`;
+        } catch (error) {
+          console.error(error);
+          resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
         }
       });
 
@@ -55,9 +55,7 @@
             const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true });
             resolve(jsonData);
           };
-          reader.onerror = (event) => {
-            reject(event.error);
-          };
+          reader.onerror = reject;
           reader.readAsArrayBuffer(file);
         });
       }
@@ -68,6 +66,13 @@
 
       function getNewListings(listings1, listings2) {
         return listings1.filter((listing) => !listings2.includes(listing));
+      }
+
+      function getAverageRent(data) {
+        const rents = data.map((row) => parseFloat(row["Rent"]));
+        const total = rents.reduce((acc, rent) => acc + rent, 0);
+        const average = total / rents.length || 0;
+        return average.toFixed(2);
       }
     </script>
   </body>
