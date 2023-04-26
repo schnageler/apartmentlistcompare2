@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <title>Apartment Listings Comparison</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+    <style>
+      ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+    </style>
   </head>
   <body>
     <label for="today-file">Choose Today's file:</label>
@@ -28,15 +34,18 @@
           const removedProperties = getNewListings(yesterdayListings, todayListings);
           const totalPropertiesToday = todayListings.length;
           const totalPropertiesYesterday = yesterdayListings.length;
-          const averageRentToday = getAverageRent(todayData);
-          const averageRentYesterday = getAverageRent(yesterdayData);
+
           resultDiv.innerHTML = `
             <p>Total Properties Today: ${totalPropertiesToday}</p>
             <p>Total Properties Yesterday: ${totalPropertiesYesterday}</p>
-            <p>Average Rent Today: ${averageRentToday}</p>
-            <p>Average Rent Yesterday: ${averageRentYesterday}</p>
-            <p>New Properties: ${newProperties.length}</p>
-            <p>Removed Properties: ${removedProperties.length}</p>
+            <h3>New Properties: (${newProperties.length})</h3>
+            <ul>
+              ${newProperties.map(prop => `<li>${prop.address}, Unit ${prop.unit}, ${prop.city}</li>`).join('')}
+            </ul>
+            <h3>Removed Properties: (${removedProperties.length})</h3>
+            <ul>
+              ${removedProperties.map(prop => `<li>${prop.address}, Unit ${prop.unit}, ${prop.city}</li>`).join('')}
+            </ul>
           `;
         } catch (error) {
           console.error(error);
@@ -46,33 +55,17 @@
 
       function readFile(file) {
         return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            const data = new Uint8Array(event.target.result);
-            const workbook = XLSX.read(data, { type: "array" });
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true });
-            resolve(jsonData);
-          };
-          reader.onerror = reject;
-          reader.readAsArrayBuffer(file);
-        });
-      }
-
-      function getMatchingListings(data) {
-        return data.map((row) => row["Unit ID"]);
+          "address": row["Address"],
+          "city": row["City"]
+        }));
       }
 
       function getNewListings(listings1, listings2) {
-        return listings1.filter((listing) => !listings2.includes(listing));
+        return listings1.filter((listing1) => !listings2.some((listing2) => listing1.unit === listing2.unit));
       }
 
-      function getAverageRent(data) {
-        const rents = data.map((row) => parseFloat(row["M"]));
-        const total = rents.reduce((acc, rent) => acc + rent, 0);
-        const average = total / rents.length || 0;
-        return average.toFixed(2);
+      function getPropertyString(property) {
+        return `${property.address}, Unit ${property.unit}, ${property.city}`;
       }
     </script>
   </body>
