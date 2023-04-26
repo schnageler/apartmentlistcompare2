@@ -28,8 +28,8 @@
         try {
           const todayData = await readFile(todayFile.files[0]);
           const yesterdayData = await readFile(yesterdayFile.files[0]);
-          const todayListings = getMatchingListings(todayData);
-          const yesterdayListings = getMatchingListings(yesterdayData);
+          const todayListings = getListings(todayData);
+          const yesterdayListings = getListings(yesterdayData);
           const newProperties = getNewListings(todayListings, yesterdayListings);
           const removedProperties = getNewListings(yesterdayListings, todayListings);
           const totalPropertiesToday = todayListings.length;
@@ -40,11 +40,11 @@
             <p>Total Properties Yesterday: ${totalPropertiesYesterday}</p>
             <h3>New Properties: (${newProperties.length})</h3>
             <ul>
-              ${newProperties.map(prop => `<li>${prop.address}, Unit ${prop.unit}, ${prop.city}</li>`).join('')}
+              ${newProperties.map(prop => `<li>User ID: ${prop.userID}</li>`).join('')}
             </ul>
             <h3>Removed Properties: (${removedProperties.length})</h3>
             <ul>
-              ${removedProperties.map(prop => `<li>${prop.address}, Unit ${prop.unit}, ${prop.city}</li>`).join('')}
+              ${removedProperties.map(prop => `<li>User ID: ${prop.userID}</li>`).join('')}
             </ul>
           `;
         } catch (error) {
@@ -68,13 +68,15 @@
           reader.readAsArrayBuffer(file);
         });
       }
-      function getMatchingListings(data) {
+      function getListings(data) {
         return data.map((row) => ({
-          "unit": row["Unit ID"],
-          "address": row["Address"],
-          "city": row["City"]
+          "userID": row["User ID"]
         }));
       }
 
       function getNewListings(listings1, listings2) {
-        return listings1.filter((listing1) => !list
+        return listings1.filter((listing1) => !listings2.some((listing2) => listing1.userID === listing2.userID));
+      }
+    </script>
+  </body>
+</html>
