@@ -35,18 +35,19 @@
           const totalPropertiesToday = todayListings.length;
           const totalPropertiesYesterday = yesterdayListings.length;
 
-          resultDiv.innerHTML = `
-            <p>Total Properties Today: ${totalPropertiesToday}</p>
-            <p>Total Properties Yesterday: ${totalPropertiesYesterday}</p>
-            <h3>New Properties: (${newProperties.length})</h3>
-            <ul>
-              ${newProperties.map(prop => `<li>Unit ID: ${prop.unitID}</li>`).join('')}
-            </ul>
-            <h3>Removed Properties: (${removedProperties.length})</h3>
-            <ul>
-              ${removedProperties.map(prop => `<li>Unit ID: ${prop.unitID}</li>`).join('')}
-            </ul>
-          `;
+       resultDiv.innerHTML = `
+  <p>Total Properties Today: ${totalPropertiesToday}</p>
+  <p>Total Properties Yesterday: ${totalPropertiesYesterday}</p>
+  <h3>New Properties: (${newProperties.length})</h3>
+  <ul>
+    ${newProperties.map(prop => `<li>Property: ${prop.property}, Unit: ${prop.unit}</li>`).join('')}
+  </ul>
+  <h3>Removed Properties: (${removedProperties.length})</h3>
+  <ul>
+    ${removedProperties.map(prop => `<li>Property: ${prop.property}, Unit: ${prop.unit}</li>`).join('')}
+  </ul>
+`;
+
         } catch (error) {
           console.error(error);
           resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
@@ -68,13 +69,14 @@
           reader.readAsArrayBuffer(file);
         });
       }
-      function getListings(data) {
-        return data.map((row) => ({
-          "unitID": row["Unit ID"],
-          "property": row["Property"],
-          "unit": row["Unit"]
-        }));
-      }
+     function getListings(data) {
+  return data.map((row) => ({
+    "unitID": row["Unit ID"],
+    "property": row["Property"],
+    "unit": row["Unit"]
+  }));
+}
+
 
       function getNewListings(listings1, listings2) {
         return listings1.filter((listing1) => !listings2.some((listing2) => listing1.unitID === listing2.unitID));
