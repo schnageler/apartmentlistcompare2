@@ -40,11 +40,11 @@
             <p>Total Properties Yesterday: ${totalPropertiesYesterday}</p>
             <h3>New Properties: (${newProperties.length})</h3>
             <ul>
-              ${newProperties.map(prop => `<li>User ID: ${prop.userID}</li>`).join('')}
+              ${newProperties.map(prop => `<li>Unit ID: ${prop.unitID}</li>`).join('')}
             </ul>
             <h3>Removed Properties: (${removedProperties.length})</h3>
             <ul>
-              ${removedProperties.map(prop => `<li>User ID: ${prop.userID}</li>`).join('')}
+              ${removedProperties.map(prop => `<li>Unit ID: ${prop.unitID}</li>`).join('')}
             </ul>
           `;
         } catch (error) {
@@ -70,12 +70,12 @@
       }
       function getListings(data) {
         return data.map((row) => ({
-          "userID": row["User ID"]
+          "unitID": row["Unit ID"]
         }));
       }
 
       function getNewListings(listings1, listings2) {
-        return listings1.filter((listing1) => !listings2.some((listing2) => listing1.userID === listing2.userID));
+        return listings1.filter((listing1) => !listings2.some((listing2) => listing1.unitID === listing2.unitID));
       }
     </script>
   </body>
