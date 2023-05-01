@@ -70,7 +70,9 @@
       }
       function getListings(data) {
         return data.map((row) => ({
-          "unitID": row["Unit ID"]
+          "unitID": row["Unit ID"],
+          "property": row["Property"],
+          "unit": row["Unit"]
         }));
       }
 
